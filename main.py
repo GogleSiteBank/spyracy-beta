@@ -17,7 +17,6 @@ def rgb(r: int, b: int, g: int):
 
 class spyracy():
     def __init__(self):
-        self.status = 0
         self.cached_songs = []
 
     def getData(self, URL: str):
@@ -40,20 +39,22 @@ class spyracy():
                  }
         yt_dlp.YoutubeDL(config).download(self.get("id", video))
 
-    def load_search_Terms(self, filename):
+    def load_search_terms(self, filename):
         for index, line in enumerate(open(filename, "r").readlines()):
             try:
-                print("[LOG] Loaded Search Term #%s successfully!" % str(index + 1))
                 self.cached_songs.append(line)
+                print("[LOG] Loaded Search Term #%s successfully!" % str(index + 1))
             except Exception as e:
                 print("[LOG] Failed to load Search Term #%s! (%s)" % (str(index + 1)), e)
 
-    def download_search_Terms(self):
+    def download_search_terms(self):
         for url in self.cached_songs:
             self.download(url)
         print("[LOG] Downloaded %s Songs!" % str(len(self.cached_songs)))
-        self.cached_songs.clear()
+        # self.cached_songs.clear()
 
+
+sPYracy = spyracy()
 
 root = tkinter.Tk()
 root.geometry("900x600")
@@ -73,20 +74,20 @@ basics.grid(column=0, row=1, pady=(50,5))
 download_box = ttk.Entry(basics, width=50)
 download_box.grid(column=0, row=0, pady=(5, 5))
 
-download_button = ttk.Button(basics, text="Download", command=lambda: spyracy().download(download_box.get()), width=52)
+download_button = ttk.Button(basics, text="Download", command=lambda: sPYracy.download(download_box.get()), width=52)
 download_button.grid(column=0, row=1, pady=(5, 5))
 
 file_stuff = ttk.LabelFrame(root, text="Downloads From File", width=52, padding=10)
 file_stuff.grid(column=0, row=2, pady=(5, 5))
 
-get_search_Terms = ttk.Button(file_stuff, text="Load Songs from file to cache", command=lambda: spyracy().load_search_Terms(filedialog.askopenfilename()), width=52)
-get_search_Terms.grid(column=0, row=0, pady=(5, 5))
+get_search_terms = ttk.Button(file_stuff, text="Load Songs from file to cache", command=lambda: sPYracy.load_search_terms(filedialog.askopenfilename()), width=52)
+get_search_terms.grid(column=0, row=0, pady=(5, 5))
 
-download_lsearch_Terms = ttk.Button(file_stuff, text="Download Songs from cache", command=lambda: spyracy().download_search_Terms(), width=52)
-download_lsearch_Terms.grid(column=0, row=1, pady=(5, 5))
+download_lsearch_terms = ttk.Button(file_stuff, text="Download Songs from cache", command=lambda: sPYracy.download_search_terms(), width=52)
+download_lsearch_terms.grid(column=0, row=1, pady=(5, 5))
 
-clear_lsearch_Terms = ttk.Button(file_stuff, text="Clear cache", width=52, command=lambda: exec('lambda: spyracy().cached_songs.clear(), print("[LOG] Cleared cached Search Terms!")'))
-clear_lsearch_Terms.grid(column=0, row=2, pady=(5, 5))
+clear_lsearch_terms = ttk.Button(file_stuff, text="Clear cache", width=52, command=lambda: exec('lambda: sPYracy.cached_songs.clear(), print("[LOG] Cleared cached Search Terms!")'))
+clear_lsearch_terms.grid(column=0, row=2, pady=(5, 5))
 
 val = tkinter.IntVar()
 val.set(1)
@@ -135,7 +136,7 @@ term.insert(0, "Term Data")
 value = ttk.Entry(options, width=15)
 value.insert(0, "Term")
 
-get_data = ttk.Button(options, width=15, text="Get Term Data", command=lambda: print("[LOG] Term Data '%s' -> %s" % (term.get(), spyracy().get(term.get(), value.get()))))   
+get_data = ttk.Button(options, width=15, text="Get Term Data", command=lambda: print("[LOG] Term Data '%s' -> %s" % (term.get(), sPYracy.get(term.get(), value.get()))))   
 
 exit_button = ttk.Button(root, text="Exit sPYracy", command=lambda: root.destroy(), width=10)
 exit_button.place(x=780, y=560) # grid(column=0, row=100, pady=(365, 0), padx=(775,0))
