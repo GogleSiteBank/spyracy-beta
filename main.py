@@ -71,7 +71,7 @@ branding.grid(column=0, row=0, pady=(10, 0))
 basics = ttk.LabelFrame(root, text="Basic Downloads", padding=10)
 basics.grid(column=0, row=1, pady=(50,5))
 
-download_box = ttk.Entry(basics, width=50)
+download_box = ttk.Entry(basics, width=52)
 download_box.grid(column=0, row=0, pady=(5, 5))
 
 download_button = ttk.Button(basics, text="Download", command=lambda: sPYracy.download(download_box.get()), width=52)
@@ -90,7 +90,6 @@ clear_lsearch_terms = ttk.Button(file_stuff, text="Clear cache", width=52, comma
 clear_lsearch_terms.grid(column=0, row=2, pady=(5, 5))
 
 val = tkinter.IntVar()
-val.set(1)
 
 style = tkinter.IntVar()
 
@@ -112,23 +111,26 @@ def set_theme(style):
     else: sv_ttk.set_theme("dark")
 
 def set_transparent(val):
-    if val.get() == 1:
-        root.attributes("-alpha", 0.9)
-    else:
-        root.attributes("-alpha", 1)
+    root.attributes("-alpha", val)
+
 
 
 options = ttk.Labelframe(root, text="Options", padding=10)
 options.grid(column=0, row=6, pady=(5, 5))
 
-developer_mode = ttk.Checkbutton(options, text="Developer Mode", width=52, variable=dev_toggle, command=lambda: toggle_dev(dev_toggle))
+developer_mode = ttk.Checkbutton(options, text="Developer Options", style='Switch.TCheckbutton', width=49, variable=dev_toggle, command=lambda: toggle_dev(dev_toggle))
 developer_mode.grid(column=0, row=0, pady=(5, 5))
 
-theme = ttk.Checkbutton(options, text="Light Theme", variable=style, width=52, command=lambda: set_theme(style))
+theme = ttk.Checkbutton(options, text="Light Theme", style='Switch.TCheckbutton', variable=style, width=49, command=lambda: set_theme(style))
 theme.grid(column=0, row=1, pady=(5, 5))
 
-transparent = ttk.Checkbutton(options, text="Transparent", variable=val, width=52, command=lambda: set_transparent(val))
-transparent.grid(column=0, row=2, pady=(5,5))
+transparent = ttk.Label(options, text="Transparency")
+transparent.grid(column=0, row=2, pady=(5,5), sticky="w")
+
+
+transparency = ttk.Scale(options, from_=0.3, to=1, variable=val, command=set_transparent, length=320)
+transparency.set(0.9)
+transparency.grid(column=0, row=2, pady=(5,5), sticky="e", padx=(0,10))
 
 term = ttk.Entry(options, width=15)
 term.insert(0, "Term Data")
@@ -137,6 +139,8 @@ value = ttk.Entry(options, width=15)
 value.insert(0, "Term")
 
 get_data = ttk.Button(options, width=15, text="Get Term Data", command=lambda: print("[LOG] Term Data '%s' -> %s" % (term.get(), sPYracy.get(term.get(), value.get()))))   
+
+
 
 exit_button = ttk.Button(root, text="Exit sPYracy", command=lambda: root.destroy(), width=10)
 exit_button.place(x=780, y=560) # grid(column=0, row=100, pady=(365, 0), padx=(775,0))
