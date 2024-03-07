@@ -1,13 +1,13 @@
 # sPYracy (in alpha, recode)
 sPYracy is a lightweight, GUI based program that allows downloading.
 
-## Usage
+### Usage
 Usage is very simple, download the python file and run `python -u main.py`
 
-## Features
+### Features
 As of right now, sPYracy can download songs from a sarch bar, or from a file. We also have developer options that allow you to get term data like the ID, Title, and more.
 
-## Images
+### Images
 
 ![image](https://github.com/GogleSiteBank/spyracy-beta/assets/125816677/65dd8d61-1fb8-446e-93a8-1a2800281eee)
 ![image](https://github.com/GogleSiteBank/spyracy-beta/assets/125816677/d7a9ec64-3a2c-47cb-b041-1647bee4a0fe)
