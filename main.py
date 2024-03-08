@@ -10,6 +10,7 @@ import os
 import time
 import webbrowser
 import re
+import sys
 
 def rgb(r: int, b: int, g: int):
     return "#%02x%02x%02x" % (r, g, b)
@@ -85,7 +86,7 @@ get_search_terms.grid(column=0, row=0, pady=(5, 5))
 download_lsearch_terms = ttk.Button(file_stuff, text="Download Songs from cache", command=lambda: sPYracy.download_search_terms(), width=52)
 download_lsearch_terms.grid(column=0, row=1, pady=(5, 5))
 
-clear_lsearch_terms = ttk.Button(file_stuff, text="Clear cache", width=52, command=lambda: exec('lambda: sPYracy.cached_songs.clear(), print("[LOG] Cleared cached Search Terms!")'))
+clear_lsearch_terms = ttk.Button(file_stuff, text="Clear cache", width=52, command=lambda: (sPYracy.cached_songs.clear(), print("[LOG] Cleared cached Search Terms!")))
 clear_lsearch_terms.grid(column=0, row=2, pady=(5, 5))
 
 val = tkinter.IntVar()
@@ -96,21 +97,23 @@ dev_toggle = tkinter.IntVar()
 
 def toggle_dev(dev_toggle):
     if dev_toggle.get() == 1:
-        term.grid(column=1, row=0)
-        value.grid(column=1, row=1)
-        get_data.grid(column=1, row=2)
+        term.grid(column=1, row=0, padx=(10, 0))
+        value.grid(column=1, row=1, padx=(10,0))
+        get_data.grid(column=1, row=2, padx=(10,0))
+        reload_spyracy.grid(column=1, row=3, padx=(10,0))
     else:
         term.grid_forget()
         value.grid_forget()
         get_data.grid_forget()
+        reload_spyracy.grid_forget()
 
 def set_theme(style):
     if style.get() == 1:
         sv_ttk.set_theme("light")
     else: sv_ttk.set_theme("dark")
 
-def set_transparent(val):
-    root.attributes("-alpha", val)
+def set_transparent(value):
+    root.attributes("-alpha", value)
 
 
 
@@ -127,9 +130,12 @@ transparent = ttk.Label(options, text="Opacity")
 transparent.grid(column=0, row=2, pady=(5,5), sticky="w")
 
 
-transparency = ttk.Scale(options, from_=0.3, to=1, variable=val, command=set_transparent, length=320)
+transparency = ttk.Scale(options, from_=0.3, to=1, variable=val, command=set_transparent, length=375)
 transparency.set(0.9)
-transparency.grid(column=0, row=2, pady=(5,5), sticky="e", padx=(0,10))
+transparency.grid(column=0, row=2, pady=(5,5), sticky="e")
+
+reset_transparency = ttk.Button(options, text="Reset Opacity", command=lambda: (set_transparent(0.9), val.set(0.9)), width=52)
+reset_transparency.grid(column=0, row=3, pady=(5,5))
 
 term = ttk.Entry(options, width=15)
 term.insert(0, "Term Data")
@@ -138,6 +144,8 @@ value = ttk.Entry(options, width=15)
 value.insert(0, "Term")
 
 get_data = ttk.Button(options, width=15, text="Get Term Data", command=lambda: print("[LOG] Term Data '%s' -> %s" % (term.get(), sPYracy.get(term.get(), value.get()))))   
+
+reload_spyracy = ttk.Button(options, width=15, text="Reload sPYracy", command=lambda: (os.execl(sys.executable, sys.executable, *sys.argv)))
 
 exit_button = ttk.Button(root, text="Exit sPYracy", command=lambda: root.destroy(), width=10)
 exit_button.place(x=780, y=560) # grid(column=0, row=100, pady=(365, 0), padx=(775,0))
