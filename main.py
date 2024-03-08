@@ -7,7 +7,6 @@ from tkinter import ttk
 import sv_ttk
 from tkinter import filedialog
 import os
-import quickbar
 import time
 import webbrowser
 import re
@@ -139,8 +138,6 @@ value = ttk.Entry(options, width=15)
 value.insert(0, "Term")
 
 get_data = ttk.Button(options, width=15, text="Get Term Data", command=lambda: print("[LOG] Term Data '%s' -> %s" % (term.get(), sPYracy.get(term.get(), value.get()))))   
-
-
 
 exit_button = ttk.Button(root, text="Exit sPYracy", command=lambda: root.destroy(), width=10)
 exit_button.place(x=780, y=560) # grid(column=0, row=100, pady=(365, 0), padx=(775,0))
