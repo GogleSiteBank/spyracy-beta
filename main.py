@@ -124,7 +124,7 @@ developer_mode.grid(column=0, row=0, pady=(5, 5))
 theme = ttk.Checkbutton(options, text="Light Theme", style='Switch.TCheckbutton', variable=style, width=49, command=lambda: set_theme(style))
 theme.grid(column=0, row=1, pady=(5, 5))
 
-transparent = ttk.Label(options, text="Transparency")
+transparent = ttk.Label(options, text="Opacity")
 transparent.grid(column=0, row=2, pady=(5,5), sticky="w")
 
 
