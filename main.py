@@ -20,16 +20,7 @@ def rgb(r: int, b: int, g: int):
 class spyracy():
     def __init__(self):
         self.cached_songs = []
-        self.output_renamer = lambda s: re.sub(r'[^\w\s]', '', s.strip().replace('[', '').replace(']', ''))[:255]
-        self.video = 'example video input'
-        self.config = {"outtmpl": "spyracy",
-                  "format": "bestaudio/best",
-                  "postprocessors": [
-                      {
-                          "key": "FFmpegExtractAudio", "preferredcodec": "flac",
-                      }
-                  ],
-                 }
+        self.codec = "flac"
 
     def getData(self, URL: str):
         data = youtube_search.YoutubeSearch(search_terms=URL, max_results=1).to_json()
@@ -39,32 +30,16 @@ class spyracy():
         jLoads = json.loads(self.getData(URL=URL))
         return jLoads["videos"][0][ITEM]
 
-    def download(self, video: str):
-        config = ast.literal_eval(str(self.config).replace("spyracy", self.output_renamer(video))) # replace this code later ?
-        yt_dlp.YoutubeDL(config).download(self.get("id", video))
+    def download(self, video: str, album: bool=False):
+        output_renamer = lambda s: re.sub(r'[^\w\s]', '', s.strip().replace('[', '').replace(']', ''))[:255]
+        config = {"outtmpl": output_renamer(video) if not album else "%(title)s","format": "bestaudio/best","postprocessors": [{"key": "FFmpegExtractAudio", "preferredcodec": self.codec,}],}
+        if album:
+            config.update({"yes-playlist": True})
+        video_url = video if album else self.get("id", video)
+        yt_dlp.YoutubeDL(config).download(video_url)
 
     def switch_config(self):
-        if "flac" in str(self.config):
-            self.config = {
-                    "outtmpl": "spyracy",
-                    "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
-                    "postprocessors": [
-                        {
-                            "key": "FFmpegVideoConvertor",
-                            "preferedformat": "mp4"
-                        }
-                    ]
-                }
-
-        else:   
-            self.config = {"outtmpl": "spyracy",
-                  "format": "bestaudio/best",
-                  "postprocessors": [
-                      {
-                          "key": "FFmpegExtractAudio", "preferredcodec": "flac",
-                      }
-                  ],
-                 }
+        self.codec = "flac" if self.codec == "mp4" else "mp4"
 
     def load_search_terms(self, filename):
         for index, line in enumerate(open(filename, "r").readlines()):
@@ -103,6 +78,11 @@ download_box.grid(column=0, row=0, pady=(5, 5))
 
 download_button = ttk.Button(basics, text="Download", command=lambda: sPYracy.download(download_box.get()), width=72)
 download_button.grid(column=0, row=1, pady=(5, 5))
+
+playlist_button = ttk.Button(basics, text="Download As Playlist/Album (requires playlist URL/ID)", width=72, command=lambda: sPYracy.download(download_box.get(), album=True))
+playlist_button.grid(column=0, row=2, pady=(5,5))
+
+
 
 file_stuff = ttk.LabelFrame(root, text="Downloads From File", padding=10)
 file_stuff.grid(column=0, row=2, pady=(5, 5))
