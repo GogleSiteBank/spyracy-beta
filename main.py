@@ -26,7 +26,7 @@ class spyracy():
         with open("%s\\config.spyc" % os.getenv("appdata"), "a+") as config:
             config.seek(0)
             self.configurated_options = str(config.read()) if not os.stat("%s\\config.spyc" % os.getenv("appdata")).st_size == 0 else "000|0.9"
-            
+
     def getData(self, URL: str):
         data = youtube_search.YoutubeSearch(search_terms=URL, max_results=1).to_json()
         return data
@@ -90,7 +90,7 @@ branding = ttk.Label(root, text="sPYracy (ALPHA RECODE)", width=100, anchor=tkin
 branding.grid(column=0, row=0, pady=(10, 0))
 
 basics = ttk.LabelFrame(root, text="Basic Downloads", padding=10)
-basics.grid(column=0, row=1, pady=(10,5))
+basics.grid(column=0, row=1, pady=(17,5))
 
 download_box = ttk.Entry(basics, width=72)
 download_box.grid(column=0, row=0, pady=(5, 5))
@@ -128,7 +128,7 @@ style = tkinter.IntVar()
 dev_toggle = tkinter.IntVar()
 
 def toggle_dev(dev_toggle):
-    elements = [term, value, get_data, reload_spyracy]
+    elements = [term, value, get_data, reload_spyracy, save_config]
     if dev_toggle.get() == 1:
         for index, element in enumerate(elements):
             element.grid(column=1, row=index, padx=(10, 0))
@@ -196,7 +196,9 @@ get_data = ttk.Button(options, width=15, text="Get Term Data", command=lambda: p
 
 reload_spyracy = ttk.Button(options, width=15, text="Reload sPYracy", command=lambda: (print("[LOG] sPYracy is reloading"), os.execl(sys.executable, sys.executable, *sys.argv)))
 
-exit_button = ttk.Button(root, text="Exit sPYracy", command=lambda: (sPYracy.config.truncate(0),sPYracy.config.write("%s%s%s|%s" % ("0" if not dev_toggle else "1", "0" if not theme else "1", "0" if not mp4_mode else "1", str(transparency.get()))), print("[LOG] Config saved!"), sPYracy.config.close(), root.destroy()), width=10)
+save_config = ttk.Button(options, width=15, text="Save Config", command=lambda: (sPYracy.config.truncate(0),sPYracy.config.write("%s%s%s|%s" % (str(dev_toggle.get()), str(style.get()), "1" if sPYracy.codec == "mp4" else "flac", str(transparency.get()))), print("[LOG] Config saved!"), sPYracy.config.close()))
+
+exit_button = ttk.Button(root, text="Exit sPYracy", command=lambda: (sPYracy.config.truncate(0),sPYracy.config.write("%s%s%s|%s" % (str(dev_toggle.get()), str(style.get()), "1" if sPYracy.codec == "mp4" else "flac", str(transparency.get()))), print("[LOG] Config saved!"), sPYracy.config.close(), root.destroy()), width=10)
 exit_button.place(x=780, y=560) # grid(column=0, row=100, pady=(365, 0), padx=(775,0))
 
 src_code = ttk.Button(root, text="Source Code", command=lambda: webbrowser.open("https://github.com/GogleSiteBank/spyracy-beta"))
