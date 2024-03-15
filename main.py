@@ -21,7 +21,12 @@ class spyracy():
     def __init__(self):
         self.cached_songs = []
         self.codec = "flac"
-
+        self.config = open("%s\\config.spyc" % os.getenv("appdata"), "a+")
+        self.configurated_options = None
+        with open("%s\\config.spyc" % os.getenv("appdata"), "a+") as config:
+            config.seek(0)
+            self.configurated_options = str(config.read()) if not os.stat("%s\\config.spyc" % os.getenv("appdata")).st_size == 0 else "000|0.9"
+            
     def getData(self, URL: str):
         data = youtube_search.YoutubeSearch(search_terms=URL, max_results=1).to_json()
         return data
@@ -49,9 +54,11 @@ class spyracy():
             config.update({"yes-playlist": True})
         video_url = video if album else self.get("id", video)
         yt_dlp.YoutubeDL(config).download(video_url)
+        print("[LOG] Downloaded Song '%s'" % output_renamer(video) if not album else "%(title)s")
 
     def switch_config(self):
         self.codec = "flac" if self.codec == "mp4" else "mp4"
+        print("[LOG] Codec Changed to '%s'" % self.codec)
 
     def load_search_terms(self, filename):
         for index, line in enumerate(open(filename, "r").readlines()):
@@ -83,7 +90,7 @@ branding = ttk.Label(root, text="sPYracy (ALPHA RECODE)", width=100, anchor=tkin
 branding.grid(column=0, row=0, pady=(10, 0))
 
 basics = ttk.LabelFrame(root, text="Basic Downloads", padding=10)
-basics.grid(column=0, row=1, pady=(20,5))
+basics.grid(column=0, row=1, pady=(10,5))
 
 download_box = ttk.Entry(basics, width=72)
 download_box.grid(column=0, row=0, pady=(5, 5))
@@ -139,6 +146,22 @@ def set_transparent(value):
 
 
 
+options_values = [
+    0,
+    0,
+    0,
+    0.9
+]
+
+#try:
+options_values[0] = sPYracy.configurated_options[0]
+options_values[1] = sPYracy.configurated_options[1]
+options_values[2] = sPYracy.configurated_options[2]
+options_values[3] = float(sPYracy.configurated_options.split("|")[1])
+#except: ...
+
+
+
 options = ttk.Labelframe(root, text="Options", padding=10)
 options.grid(column=0, row=6, pady=(5, 5))
 
@@ -158,6 +181,8 @@ transparency = ttk.Scale(options, from_=0.3, to=1, variable=val, command=set_tra
 transparency.set(0.9)
 transparency.grid(column=0, row=3, pady=(5,5), sticky="e")
 
+
+
 reset_transparency = ttk.Button(options, text="Reset Opacity", command=lambda: (set_transparent(0.9), val.set(0.9)), width=52)
 reset_transparency.grid(column=0, row=4, pady=(5,5))
 
@@ -171,11 +196,21 @@ get_data = ttk.Button(options, width=15, text="Get Term Data", command=lambda: p
 
 reload_spyracy = ttk.Button(options, width=15, text="Reload sPYracy", command=lambda: (print("[LOG] sPYracy is reloading"), os.execl(sys.executable, sys.executable, *sys.argv)))
 
-exit_button = ttk.Button(root, text="Exit sPYracy", command=lambda: root.destroy(), width=10)
+exit_button = ttk.Button(root, text="Exit sPYracy", command=lambda: (sPYracy.config.truncate(0),sPYracy.config.write("%s%s%s|%s" % ("0" if not dev_toggle else "1", "0" if not theme else "1", "0" if not mp4_mode else "1", str(transparency.get()))), print("[LOG] Config saved!"), sPYracy.config.close(), root.destroy()), width=10)
 exit_button.place(x=780, y=560) # grid(column=0, row=100, pady=(365, 0), padx=(775,0))
 
 src_code = ttk.Button(root, text="Source Code", command=lambda: webbrowser.open("https://github.com/GogleSiteBank/spyracy-beta"))
 src_code.place(x=10, y=560)
+
+transparency.set(options_values[3])
+developer_mode.state(["selected" if options_values[0] == "1" else ""])
+dev_toggle.set(1 if options_values[0] == "1" else 0)
+toggle_dev(dev_toggle)
+theme.state(["selected" if options_values[1] == "1" else ""])
+style.set(1 if options_values[1] == "1" else 0)
+set_theme(style)
+mp4_mode.state(["selected" if options_values[2] == "1" else ""])
+if "selected" in mp4_mode.state(): sPYracy.switch_config()
 
 #temp = ttk.Button(options, text="test button")
 #temp.grid(column=1, row=0)
