@@ -5,7 +5,16 @@ sPYracy is a lightweight, GUI based program that allows downloading.
 Usage is very simple, download the python file and run `python -u main.py`
 
 ### Features
-As of right now, sPYracy can download songs from a sarch bar, or from a file. We also have developer options that allow you to get term data like the ID, Title, and more.
+
+- Single Song Downloading
+- Full Album/Playlist Downloading
+- Quick and Easy Switching to MP4 to get music videos, or just videos in general
+- Get Video Data
+- Writes Metadata
+- High quality flacs
+- Downloads From Files
+- Multi Song Downloading
+- User Friendly GUI
 
 ### Images
 
