@@ -18,7 +18,5 @@ Usage is very simple, download the python file and run `python -u main.py`
 
 ### Images
 
-![image](https://github.com/GogleSiteBank/spyracy-beta/assets/125816677/65dd8d61-1fb8-446e-93a8-1a2800281eee)
-![image](https://github.com/GogleSiteBank/spyracy-beta/assets/125816677/d7a9ec64-3a2c-47cb-b041-1647bee4a0fe)
-![image](https://github.com/GogleSiteBank/spyracy-beta/assets/125816677/62c1d1c0-c9ea-4d93-abaf-f442f59d1e44)
-![image](https://github.com/GogleSiteBank/spyracy-beta/assets/125816677/9c641cce-0e5d-4a95-9939-22da26c29971)
+![image](https://github.com/GogleSiteBank/spyracy-beta/assets/125816677/e9659f91-66ae-4f1b-b336-4e7bb684f2a7)
+![image](https://github.com/GogleSiteBank/spyracy-beta/assets/125816677/559bb343-b7fc-4e9d-b4f4-036ec0dfa69d)
