@@ -32,7 +32,19 @@ class spyracy():
 
     def download(self, video: str, album: bool=False):
         output_renamer = lambda s: re.sub(r'[^\w\s]', '', s.strip().replace('[', '').replace(']', ''))[:255]
-        config = {"outtmpl": output_renamer(video) if not album else "%(title)s","format": "bestaudio/best","postprocessors": [{"key": "FFmpegExtractAudio", "preferredcodec": self.codec,}],}
+        config = {"outtmpl": output_renamer(video) if not album else "%(title)s",
+         "write_thumbnail": True,
+         'embed-metadata': True,
+         'parse-metadata': '%(artist)s - %(title)s',
+          "format": "bestaudio/best",
+          "postprocessors": [{
+            "key": "FFmpegExtractAudio",
+            "preferredcodec": self.codec,
+          },
+            {
+                "key": 'FFmpegMetadata'
+            }
+          ]}
         if album:
             config.update({"yes-playlist": True})
         video_url = video if album else self.get("id", video)
