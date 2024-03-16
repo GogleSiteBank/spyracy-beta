@@ -68,17 +68,17 @@ class spyracy():
             except Exception as e:
                 print("[LOG] Failed to load Search Term #%s! (%s)" % (str(index + 1)), e)
 
-    def download_search_terms(self):
+    def download_search_terms(self, album=False):
         for url in self.cached_songs:
-            self.download(url)
-        print("[LOG] Downloaded %s Songs!" % str(len(self.cached_songs)))
-        # self.cached_songs.clear()
+            self.download(url, album=album)
+        print("[LOG] Downloaded %s %s!" % (str(len(self.cached_songs)), "Albums" if album else "Songs"))
+        self.cached_songs.clear() # WHY WAS THIS COMMENTED? HOW STUPID.
 
 
 sPYracy = spyracy()
 
 root = tkinter.Tk()
-root.geometry("900x600")
+root.geometry("900x625")
 # root.configure(bg=rgb(30, 30, 30))
 root.title("sPYracy ALPHA 1")
 
@@ -90,7 +90,7 @@ branding = ttk.Label(root, text="sPYracy (ALPHA RECODE)", width=100, anchor=tkin
 branding.grid(column=0, row=0, pady=(10, 0))
 
 basics = ttk.LabelFrame(root, text="Basic Downloads", padding=10)
-basics.grid(column=0, row=1, pady=(17,5))
+basics.grid(column=0, row=1, pady=(5,5))
 
 download_box = ttk.Entry(basics, width=72)
 download_box.grid(column=0, row=0, pady=(5, 5))
@@ -112,8 +112,11 @@ get_search_terms.grid(column=0, row=0, pady=(5, 5))
 download_lsearch_terms = ttk.Button(file_stuff, text="Download Songs from cache", command=lambda: sPYracy.download_search_terms(), width=52)
 download_lsearch_terms.grid(column=0, row=1, pady=(5, 5))
 
+download_lsearch_albums = ttk.Button(file_stuff, text="Download from cache (as albums)", width=72, command=lambda: sPYracy.download_search_terms(True))
+download_lsearch_albums.grid(column=0, row=2, pady=(5, 5), columnspan=2)
+
 clear_lsearch_terms = ttk.Button(file_stuff, text="Clear cache", width=72, command=lambda: (sPYracy.cached_songs.clear(), print("[LOG] Cleared cached Search Terms!")))
-clear_lsearch_terms.grid(column=0, row=2, pady=(5, 5), columnspan=2)
+clear_lsearch_terms.grid(column=0, row=3, pady=(5, 5), columnspan=2)
 
 add_box = ttk.Entry(file_stuff, width=15)
 add_box.grid(column=1, row=0, pady=(5, 5), padx=(10, 0))
@@ -199,10 +202,10 @@ reload_spyracy = ttk.Button(options, width=15, text="Reload sPYracy", command=la
 save_config = ttk.Button(options, width=15, text="Save Config", command=lambda: (sPYracy.config.truncate(0),sPYracy.config.write("%s%s%s|%s" % (str(dev_toggle.get()), str(style.get()), "1" if sPYracy.codec == "mp4" else "flac", str(transparency.get()))), print("[LOG] Config saved!"), sPYracy.config.close()))
 
 exit_button = ttk.Button(root, text="Exit sPYracy", command=lambda: (sPYracy.config.truncate(0),sPYracy.config.write("%s%s%s|%s" % (str(dev_toggle.get()), str(style.get()), "1" if sPYracy.codec == "mp4" else "flac", str(transparency.get()))), print("[LOG] Config saved!"), sPYracy.config.close(), root.destroy()), width=10)
-exit_button.place(x=780, y=560) # grid(column=0, row=100, pady=(365, 0), padx=(775,0))
+exit_button.place(x=780, y=585) # grid(column=0, row=100, pady=(365, 0), padx=(775,0))
 
 src_code = ttk.Button(root, text="Source Code", command=lambda: webbrowser.open("https://github.com/GogleSiteBank/spyracy-beta"))
-src_code.place(x=10, y=560)
+src_code.place(x=10, y=585)
 
 transparency.set(options_values[3])
 developer_mode.state(["selected" if options_values[0] == "1" else ""])
