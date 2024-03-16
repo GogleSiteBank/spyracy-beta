@@ -80,13 +80,13 @@ sPYracy = spyracy()
 root = tkinter.Tk()
 root.geometry("900x625")
 # root.configure(bg=rgb(30, 30, 30))
-root.title("sPYracy ALPHA 1")
+root.title("sPYracy")
 
 root.attributes("-alpha", 0.9)  
 root.resizable(0,0)
 
 sv_ttk.set_theme("dark")
-branding = ttk.Label(root, text="sPYracy (ALPHA RECODE)", width=100, anchor=tkinter.CENTER, font=("Arial", 12))
+branding = ttk.Label(root, text="sPYracy", width=100, anchor=tkinter.CENTER, font=("Arial", 12))
 branding.grid(column=0, row=0, pady=(10, 0))
 
 basics = ttk.LabelFrame(root, text="Basic Downloads", padding=10)
