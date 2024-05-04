@@ -13,7 +13,9 @@ import re
 import sys
 from tkinter import messagebox
 import ast
-
+from PIL import ImageTk, Image
+import requests
+from io import BytesIO
 def rgb(r: int, b: int, g: int):
     return "#%02x%02x%02x" % (r, g, b)
 
@@ -21,15 +23,26 @@ class spyracy():
     def __init__(self):
         self.cached_songs = []
         self.codec = "flac"
-        self.config = open("%s\\config.spyc" % os.getenv("appdata"), "a+")
+        if os.name == 'nt':
+            loc = "%s\\config.spyc" % os.getenv("appdata")
+        else:
+            loc = "config.spyc"
+        self.config = open(loc, "a+")
         self.configurated_options = None
-        with open("%s\\config.spyc" % os.getenv("appdata"), "a+") as config:
+        with open(loc, "a+") as config:
             config.seek(0)
-            self.configurated_options = str(config.read()) if not os.stat("%s\\config.spyc" % os.getenv("appdata")).st_size == 0 else "000|0.9"
+            self.configurated_options = str(config.read()) if not os.stat(loc).st_size == 0 else "000|0.9"
 
-    def getData(self, URL: str):
-        data = youtube_search.YoutubeSearch(search_terms=URL, max_results=1).to_json()
+    def getData(self, URL: str, max_results: int=1):
+        data = youtube_search.YoutubeSearch(search_terms=URL, max_results=max_results).to_json()
         return data
+
+    def search(self, URL: str, max_results: int=1):
+        jLoads = json.loads(self.getData(URL=URL, max_results=max_results))
+        results = []
+        for i in range(max_results):
+            results.append("%s (%s)|%s" % (jLoads["videos"][i]["title"], jLoads["videos"][i]["id"], jLoads["videos"][i]["thumbnails"][0]))
+        return results
 
     def get(self, ITEM: str, URL: str):
         jLoads = json.loads(self.getData(URL=URL))
@@ -38,18 +51,18 @@ class spyracy():
     def download(self, video: str, album: bool=False):
         output_renamer = lambda s: re.sub(r'[^\w\s]', '', s.strip().replace('[', '').replace(']', ''))[:255]
         config = {"outtmpl": output_renamer(video) if not album else "%(title)s",
-         "write_thumbnail": True,
-         'embed-metadata': True,
-         'parse-metadata': '%(artist)s - %(title)s',
-          "format": "bestaudio/best",
-          "postprocessors": [{
+        "write_thumbnail": True,
+        'embed-metadata': True,
+        'parse-metadata': '%(artist)s - %(title)s',
+        "format": "bestaudio/best",
+        "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": self.codec,
-          },
+        },
             {
                 "key": 'FFmpegMetadata'
             }
-          ]}
+        ]}
         if album:
             config.update({"yes-playlist": True})
         video_url = video if album else self.get("id", video)
@@ -74,11 +87,36 @@ class spyracy():
         print("[LOG] Downloaded %s %s!" % (str(len(self.cached_songs)), "Albums" if album else "Songs"))
         self.cached_songs.clear() # WHY WAS THIS COMMENTED? HOW STUPID.
 
-
 sPYracy = spyracy()
 
+class WebImage:
+    def __init__(self, url, target_resolution=(192, 144)):
+        u = requests.get(url)
+        image = Image.open(BytesIO(u.content))
+        image = image.resize(target_resolution)
+        self.image = ImageTk.PhotoImage(image)
+        
+    def get(self):
+        return self.image
+
+
+def search():
+    root2 = tkinter.Toplevel()
+    query = download_box.get()
+    info = sPYracy.search(query, 5)
+    
+    for i in range(5):
+        link = info[i].split("|")[1].split("?")[0]
+        title = info[i].split("|")[0]
+        exec("img_%s = WebImage(link).get()" % i)
+        exec("thumbnail_%s = tkinter.Label(root2, image=img_%s).grid(column=0, row=%s, pady=(5,5))" % (i,i,i))
+        exec("title%s = tkinter.Label(root2, text=f'{title}').grid(column=1, row=%s, pady=(5,5))" % (i,i))
+        
+    print("displayed img %s" % link)
+    root2.mainloop()
+
 root = tkinter.Tk()
-root.geometry("900x625")
+root.geometry("900x750")
 # root.configure(bg=rgb(30, 30, 30))
 root.title("sPYracy")
 
@@ -101,6 +139,8 @@ download_button.grid(column=0, row=1, pady=(5, 5))
 playlist_button = ttk.Button(basics, text="Download As Playlist/Album (requires playlist URL/ID)", width=72, command=lambda: sPYracy.download(download_box.get(), album=True))
 playlist_button.grid(column=0, row=2, pady=(5,5))
 
+search_button = ttk.Button(basics, text="Search this query", width=72, command=search)
+search_button.grid(column=0, row=3, pady=(5,5))
 
 
 file_stuff = ttk.LabelFrame(root, text="Downloads From File", padding=10)
@@ -202,10 +242,10 @@ reload_spyracy = ttk.Button(options, width=15, text="Reload sPYracy", command=la
 save_config = ttk.Button(options, width=15, text="Save Config", command=lambda: (sPYracy.config.truncate(0),sPYracy.config.write("%s%s%s|%s" % (str(dev_toggle.get()), str(style.get()), "1" if sPYracy.codec == "mp4" else "flac", str(transparency.get()))), print("[LOG] Config saved!"), sPYracy.config.close()))
 
 exit_button = ttk.Button(root, text="Exit sPYracy", command=lambda: (sPYracy.config.truncate(0),sPYracy.config.write("%s%s%s|%s" % (str(dev_toggle.get()), str(style.get()), "1" if sPYracy.codec == "mp4" else "flac", str(transparency.get()))), print("[LOG] Config saved!"), sPYracy.config.close(), root.destroy()), width=10)
-exit_button.place(x=780, y=585) # grid(column=0, row=100, pady=(365, 0), padx=(775,0))
+exit_button.place(x=780, y=10) # grid(column=0, row=100, pady=(365, 0), padx=(775,0))
 
 src_code = ttk.Button(root, text="Source Code", command=lambda: webbrowser.open("https://github.com/GogleSiteBank/spyracy-beta"))
-src_code.place(x=10, y=585)
+src_code.place(x=10, y=10)
 
 transparency.set(options_values[3])
 developer_mode.state(["selected" if options_values[0] == "1" else ""])
