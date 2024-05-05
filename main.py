@@ -41,28 +41,33 @@ class spyracy():
         jLoads = json.loads(self.getData(URL=URL, max_results=max_results))
         results = []
         for i in range(max_results):
-            results.append("%s (%s)|%s" % (jLoads["videos"][i]["title"], jLoads["videos"][i]["id"], jLoads["videos"][i]["thumbnails"][0]))
+            # results.append("%s (%s)|%s" % (jLoads["videos"][i]["title"], jLoads["videos"][i]["id"], jLoads["videos"][i]["thumbnails"][0]))
+            results.append(jLoads["videos"][i]["title"])
+            results.append(jLoads["videos"][i]["id"])
+            results.append(jLoads["videos"][i]["thumbnails"][0])
         return results
 
     def get(self, ITEM: str, URL: str):
         jLoads = json.loads(self.getData(URL=URL))
         return jLoads["videos"][0][ITEM]
 
-    def download(self, video: str, album: bool=False):
+    def download(self, video: str, album: bool=False, direct: bool=False):
         output_renamer = lambda s: re.sub(r'[^\w\s]', '', s.strip().replace('[', '').replace(']', ''))[:255]
         config = {"outtmpl": output_renamer(video) if not album else "%(title)s",
-        "write_thumbnail": True,
-        'embed-metadata': True,
-        'parse-metadata': '%(artist)s - %(title)s',
-        "format": "bestaudio/best",
-        "postprocessors": [{
-            "key": "FFmpegExtractAudio",
-            "preferredcodec": self.codec,
-        },
-            {
-                "key": 'FFmpegMetadata'
-            }
-        ]}
+            "write_thumbnail": True,
+            'embed-metadata': True,
+            'parse-metadata': '%(artist)s - %(title)s',
+            "format": "bestaudio/best" if self.codec == "flac" else "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+            "merge_output_format": "mp4" if self.codec == "mp4" else "flac",
+            "postprocessors": [
+                {"key": "FFmpegExtractAudio","preferredcodec": "flac"} if self.codec == "flac" else {"key": "EmbedThumbnail"},
+                {
+                    "key": 'FFmpegMetadata'
+                }
+            ]}
+        if direct:
+            yt_dlp.YoutubeDL(config).download(video)
+            return
         if album:
             config.update({"yes-playlist": True})
         video_url = video if album else self.get("id", video)
@@ -102,19 +107,37 @@ class WebImage:
 
 def search():
     root2 = tkinter.Toplevel()
+    root2.geometry("780x780")
     query = download_box.get()
-    info = sPYracy.search(query, 5)
-    
-    for i in range(5):
-        link = info[i].split("|")[1].split("?")[0]
-        title = info[i].split("|")[0]
-        exec("img_%s = WebImage(link).get()" % i)
-        exec("thumbnail_%s = tkinter.Label(root2, image=img_%s).grid(column=0, row=%s, pady=(5,5))" % (i,i,i))
-        exec("title%s = tkinter.Label(root2, text=f'{title}').grid(column=1, row=%s, pady=(5,5))" % (i,i))
-        
-    print("displayed img %s" % link)
-    root2.mainloop()
+    root2.title("Search results for \"%s\"" % query)
+    info = sPYracy.search(query, 10)
+    sv_ttk.set_theme("dark")
 
+    canvas = tkinter.Canvas(root2)
+    scrollbar = tkinter.Scrollbar(root2, orient="vertical")
+    scrollbar.config(command=lambda *args: canvas.yview(*args))
+    canvas.config(yscrollcommand=scrollbar.set)
+
+    scrollbar.pack(side="right", fill="y")
+    canvas.pack(side="left", fill="both", expand=True)
+
+    frame = tkinter.Frame(canvas)
+    canvas.create_window((0, 0), window=frame, anchor="nw")
+
+    for i in range(10):
+        title_index = i * 3
+        title = info[title_index]
+        _id = info[title_index + 1]
+        link = info[title_index + 2]
+        exec("img_%s = WebImage(link).get()" % i)
+        exec("thumbnail_%s = ttk.Label(frame, image=img_%s).grid(column=0, row=%s, pady=(5,5))" % (i,i,i))
+        exec("title_%s = ttk.Label(frame, text=f'{title} (%s)').grid(column=1, row=%s, pady=(5,5))" % (i,_id, i))
+        exec("downloader_%s = ttk.Button(frame, text=f'Download', command=lambda: sPYracy.download('%s', direct=True)).grid(column=1, row=%s, pady=(75,5))" % (i,_id, i))
+
+    canvas.bind("<Configure>", lambda event: canvas.configure(scrollregion=canvas.bbox("all"))) 
+    canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(int(-1*(event.delta/120)), "units"))
+    
+    root2.mainloop()
 root = tkinter.Tk()
 root.geometry("900x750")
 # root.configure(bg=rgb(30, 30, 30))
